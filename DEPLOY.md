@@ -1,37 +1,53 @@
-# Deploy Guide
+# Deploy Guide — Sanns Store Backend
 
-## Recommended setup
+## Local check
 
-- Frontend: Vercel or Netlify
-- Backend: Render, Railway, VPS, or Docker hosting
-- Database: PostgreSQL for production
-
-## Frontend environment variable
-
-Set this on Vercel/Netlify:
-
-```env
-VITE_API_URL=https://your-backend-domain.com/api
+```bash
+npm install
+cp .env.example .env
+npm run db:push
+npm run db:seed
+npm run build
+npm start
 ```
 
-## Important CORS setting on backend
+Health check:
 
-Your backend `.env` should include the frontend URL:
-
-```env
-ALLOWED_ORIGINS=https://your-frontend-domain.vercel.app
+```bash
+curl http://localhost:3001/api/health
 ```
 
-For multiple origins:
+## Render / Railway / VPS
+
+Recommended production database: PostgreSQL.
+
+Set environment variables:
 
 ```env
-ALLOWED_ORIGINS=http://localhost:5173,https://your-frontend-domain.vercel.app
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/sanns_store?schema=public"
+NODE_ENV=production
+ALLOWED_ORIGINS=https://your-frontend-domain.com
 ```
 
-## Production test checklist
+Build command:
 
-1. Open `/catalog` and confirm products load.
-2. Open a product detail page.
-3. Add item to cart.
-4. Checkout with name and email.
-5. Confirm order appears in `/orders`.
+```bash
+npm install && npm run build
+```
+
+Start command:
+
+```bash
+npm start
+```
+
+After the database is configured, run once:
+
+```bash
+npx prisma migrate deploy
+npm run db:seed
+```
+
+## SQLite note
+
+SQLite is fine for local development. For cloud hosts with ephemeral filesystems, use PostgreSQL.
